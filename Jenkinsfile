@@ -5,6 +5,8 @@ pipeline {
                   steps {
                         echo 'Hi, this is Anshul from LevelUp360'
                         echo 'We are Starting the Testing'
+                        checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'laluondru', url: 'https://github.com/laluondru/java-app-with-maven.git']]])
+                        sh mvn "-Dmaven.test.failure.ignore=true clean package"
                   }
             }
             stage('Build') {
