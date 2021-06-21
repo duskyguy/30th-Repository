@@ -1,29 +1,33 @@
 pipeline {
-      agent any
-      stages {
-            stage('Init') {
-                  steps {
-                        echo 'Hi, this is Anshul from LevelUp360'
-                        echo 'We are Starting the Testing'
-                        
-                  }
+    agent any
+
+    tools {
+        maven "maven"
+        jdk "jdk11"
+    }
+
+    stages {
+        stage('Initialize'){
+            steps{
+                echo "PATH = ${M2_HOME}/bin:${PATH}"
+                echo "M2_HOME = /opt/maven"
             }
-            stage('Build') {
-                  steps {
-                        echo 'Building Sample Maven Project'
-                        checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'laluondru', url: 'https://github.com/laluondru/java-app-with-maven.git']]])
-                        sh "mvn -Dmaven.test.failure.ignore=true clean package"
-                  }
+        }
+        stage('Build') {
+            steps {
+                dir("/var/lib/jenkins/workspace/New_demo/my-app") {
+                sh 'mvn -B -DskipTests clean package'
+                }
+            
             }
-            stage('Deploy') {
-                  steps {
-                        echo "Deploying in Staging Area"
-                  }
-            }
-            stage('Deploy Production') {
-                  steps {
-                        echo "Deploying in Production Area"
-                  }
-            }
+		}
+     }
+    post {
+       always {
+          junit(
+        allowEmptyResults: true,
+        testResults: '*/test-reports/.xml'
+      )
       }
+   } 
 }
